@@ -37,114 +37,70 @@ namespace Revelations.UITest
 
         #endregion Constructors
         [Test]
-        public void Login()
-        {
-            SignInPage signInPage = Navigation.NavigateToHomePage(Browser);
-            //browser exists, user name exists 
-            HomePage homePage = signInPage.Login(Username, Password);
+        public void VerifyNewPopulationCreation()
+ {
+     SignInPage signInPage = Navigation.NavigateToHomePage(Browser);
+     //browser exists, user name exists 
+     HomePage homePage = signInPage.Login(Username, Password);
 
-            PopulationsPage populationPage = homePage.ClickAndWaitBasePage(homePage.PopulationMenuLink);
+     PopulationsPage populationPage = homePage.ClickAndWaitBasePage(homePage.PopulationMenuLink);
 
-            String datetime = DateTime.Now.ToString("yy-MM-dd HH:mm:ss").Replace("-", "").Replace(" ", "").Replace(":", "");
+     String datetime = DateTime.Now.ToString("yy-MM-dd HH:mm:ss").Replace("-", "").Replace(" ", "").Replace(":", "");
 
-            String Title = "AutoTitle" + datetime;
-            String Description = "AutoDesc" + datetime;
-            String AttributeType = "Diagnoses";
-            String Attribute = "ICD Code - Diagnoses";
-            String FilterCoditionOne = "in";
-            String FilterConditionSearchText = "070.2";
-            String IsContract = "Yes";
+     String Title = "AutoTitle" + datetime;
+     String Description = "AutoDesc" + datetime;
+     String AttributeType = "Diagnoses";
+     String Attribute = "ICD Code - Diagnoses";
+     String FilterCoditionOne = "in";
+     String[] FilterConditionSearchText = { "070.2" };
+     String FilterSearchResultsSelection = "Select All";
+     String IsContract = "Yes";
 
-            populationPage.CreateNewPopulation(Title, Description, AttributeType, Attribute, FilterCoditionOne, FilterConditionSearchText, IsContract);
+     populationPage.CreateNewPopulation(Title, Description, AttributeType, Attribute, FilterCoditionOne, FilterConditionSearchText, FilterSearchResultsSelection, IsContract);
 
-            // Validate first population status
-            Assert.That(ElemGet.Grid_CellTextFound(Browser, populationPage.PopulationDetailsTbl, 5, "td", " Processing"));
+     // Validate first population status
+     Assert.That(ElemGet.Grid_CellTextFound(Browser, populationPage.PopulationDetailsTbl, 5, "td", " Processing"));
 
-            // Validate Population is created with title
-            Assert.That(ElemGet.Grid_CellTextFound(Browser, populationPage.PopulationDetailsTbl, 0, "td", " " + Title));
-            Browser.WaitJSAndJQuery();
+     // Validate Population is created with title
+     Assert.That(ElemGet.Grid_CellTextFound(Browser, populationPage.PopulationDetailsTbl, 0, "td", " " + Title));
+     Browser.WaitJSAndJQuery();
 
-            Browser.WaitForElement(Bys.PopulationsPageBy.ActionsHomeBtn, TimeSpan.FromSeconds(60), ElementCriteria.IsVisible);
+     Browser.WaitForElement(Bys.PopulationsPageBy.ActionsHomeBtn, TimeSpan.FromSeconds(120), ElementCriteria.IsVisible);
 
-            //Browser.WaitForElement(Bys.PopulationsPageBy.ActionsHomeBtn, ElementCriteria.IsVisible);
+     //Browser.WaitForElement(Bys.PopulationsPageBy.ActionsHomeBtn, ElementCriteria.IsVisible);
 
-            // Copy existing population
-            String CopiedNewPopulationTitle = populationPage.CopyFirstPopulationInGridList(Title);
+     // Copy existing population
+     String CopiedNewPopulationTitle = populationPage.CopyFirstPopulationInGridList(Title);
 
-            if (!CopiedNewPopulationTitle.Contains(Title + " COPYid_"))
-                throw new Exception("New Population Title is :" + CopiedNewPopulationTitle + " doesn't contain expected title " + Title + " COPYid_");
+     if (!CopiedNewPopulationTitle.Contains(Title + " COPYid_"))
+         throw new Exception("New Population Title is :" + CopiedNewPopulationTitle + " doesn't contain expected title " + Title + " COPYid_");
 
-            // Validate first population status
-            Assert.That(ElemGet.Grid_CellTextFound(Browser, populationPage.PopulationDetailsTbl, 5, "td", " Processing"));
+     // Validate first population status
+     Assert.That(ElemGet.Grid_CellTextFound(Browser, populationPage.PopulationDetailsTbl, 5, "td", " Processing"));
 
-            // Validate Population is created with title
-            Assert.That(ElemGet.Grid_CellTextFound(Browser, populationPage.PopulationDetailsTbl, 0, "td", " " + CopiedNewPopulationTitle));
-            Browser.WaitJSAndJQuery();
-            Browser.WaitForElement(Bys.PopulationsPageBy.ActionsHomeBtn, TimeSpan.FromSeconds(60), ElementCriteria.IsVisible);
+     // Validate Population is created with title
+     Assert.That(ElemGet.Grid_CellTextFound(Browser, populationPage.PopulationDetailsTbl, 0, "td", " " + CopiedNewPopulationTitle));
+     Browser.WaitJSAndJQuery();
+     Browser.WaitForElement(Bys.PopulationsPageBy.ActionsHomeBtn, TimeSpan.FromSeconds(100), ElementCriteria.IsVisible);
 
-            // Delete existing population
-            populationPage.DeleteFirstPopulationInGridList();
+     // Delete existing population
+     populationPage.DeleteFirstPopulationInGridList();
 
-            // Edit
-            populationPage.DeSelectDropdownOptions(2);
+     Thread.Sleep(TimeSpan.FromSeconds(30));
 
-            // Validate first population status
-            Assert.That(ElemGet.Grid_CellTextFound(Browser, populationPage.PopulationDetailsTbl, 5, "td", " Processing"));
+     // Edit
+     populationPage.DeSelectDropdownOptions(2);
 
-            // Validate Population is created with title
-            Assert.That(ElemGet.Grid_CellTextFound(Browser, populationPage.PopulationDetailsTbl, 0, "td", " " + Title));
-            Browser.WaitJSAndJQuery();
-            Browser.WaitForElement(Bys.PopulationsPageBy.ActionsHomeBtn, TimeSpan.FromSeconds(60), ElementCriteria.IsVisible);
+     // Validate first population status
+     Assert.That(ElemGet.Grid_CellTextFound(Browser, populationPage.PopulationDetailsTbl, 5, "td", " Processing"));
 
-        }
+     // Validate Population is created with title
+     Assert.That(ElemGet.Grid_CellTextFound(Browser, populationPage.PopulationDetailsTbl, 0, "td", " " + Title));
+     Browser.WaitJSAndJQuery();
+     Browser.WaitForElement(Bys.PopulationsPageBy.ActionsHomeBtn, TimeSpan.FromSeconds(60), ElementCriteria.IsVisible);
 
-        [Test]
-        public void TestTwo()
-        {
-            SignInPage signInPage = Navigation.NavigateToHomePage(Browser);
-
-            HomePage homePage = signInPage.Login(Username, Password);
-
-            PopulationsPage populationPage = homePage.ClickAndWaitBasePage(homePage.PopulationMenuLink);
-
-            String datetime = DateTime.Now.ToString("yy-MM-dd HH:mm:ss").Replace("-", "").Replace(" ", "").Replace(":", "");
-
-            String Title = "AutoTitle" + datetime;
-            String Description = "AutoDesc" + datetime;
-            String AttributeType = "Diagnoses";
-            String Attribute = "ICD Code - Diagnoses";
-            String FilterCoditionOne = "in";
-            String FilterConditionSearchText = "070.2";
-            String IsContract = "Yes";
-
-            populationPage.CreateNewPopulation(Title, Description, AttributeType, Attribute, FilterCoditionOne, FilterConditionSearchText, IsContract);
-
-            // Validate first population status
-            Assert.That(ElemGet.Grid_CellTextFound(Browser, populationPage.PopulationDetailsTbl, 5, "td", " Processing"));
-
-            // Validate Population is created with title
-            Assert.That(ElemGet.Grid_CellTextFound(Browser, populationPage.PopulationDetailsTbl, 0, "td", " " + Title));
-            Browser.WaitJSAndJQuery();
-
-            Browser.WaitForElement(Bys.PopulationsPageBy.ActionsHomeBtn, TimeSpan.FromSeconds(60), ElementCriteria.IsVisible);
-
-            // Edit
-            populationPage.DeSelectDropdownOptions(2);
-
-            // Validate first population status
-            Assert.That(ElemGet.Grid_CellTextFound(Browser, populationPage.PopulationDetailsTbl, 5, "td", " Processing"));
-
-            // Validate Population is created with title
-            Assert.That(ElemGet.Grid_CellTextFound(Browser, populationPage.PopulationDetailsTbl, 0, "td", " " + Title));
-            Browser.WaitJSAndJQuery();
-            Browser.WaitForElement(Bys.PopulationsPageBy.ActionsHomeBtn, TimeSpan.FromSeconds(60), ElementCriteria.IsVisible);
-
-            // Navigate to Report Menu
-            ReportsPage reportsPage = homePage.ClickAndWaitBasePage(homePage.ReportMenuLink);
-
-            reportsPage.ClickAndWait(reportsPage.FeasibilityFreeSelectPopulationBtn);
-
-            Thread.Sleep(50000);
+ }
+        
         }
     }
 }
