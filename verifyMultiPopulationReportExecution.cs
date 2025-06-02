@@ -5,8 +5,83 @@
 
             HomePage homePage = signInPage.Login(Username, Password);
 
-            String Title = "Multi pop Auto_Check _one";
-            String Title2 = "Multi pop Report-Auto_ Check two";
+            PopulationsPage populationPage = homePage.ClickAndWaitBasePage(homePage.PopulationMenuLink);
+
+            String datetime = DateTime.Now.ToString("yy-MM-dd HH:mm:ss").Replace("-", "").Replace(" ", "").Replace(":", "");
+
+            String TitleOne = "AutoTitle" + datetime;
+            String DescriptionOne = "AutoDesc" + datetime;
+            String AttributeType = "Diagnoses";
+            String Attribute = "ICD Code - Diagnoses";
+            String FilterCoditionOne = "in";
+            String[] FilterConditionSearchText = { "001", "001.0" };
+            String FilterSearchResultsSelection = "Individual";
+            String IsContract = "Yes";
+
+            populationPage.CreateNewPopulation(TitleOne, DescriptionOne, AttributeType, Attribute, FilterCoditionOne, FilterConditionSearchText, FilterSearchResultsSelection, IsContract);
+
+            // Validate first population status
+            Assert.That(ElemGet.Grid_CellTextFound(Browser, populationPage.PopulationDetailsTbl, 5, "td", " Processing"));
+
+            // Validate Population is created with title
+            Assert.That(ElemGet.Grid_CellTextFound(Browser, populationPage.PopulationDetailsTbl, 0, "td", " " + TitleOne));
+            Browser.WaitJSAndJQuery();
+
+            Browser.WaitForElement(Bys.PopulationsPageBy.ActionsHomeBtn, TimeSpan.FromSeconds(60), ElementCriteria.IsVisible);
+
+            // Open the created popoulation
+
+            populationPage.ClickAndWait(populationPage.populationDetailsTblFirtRowNameColumn);
+
+            // Retrive the Details of Visits, Population, Sites
+
+            String[] populationOneVisitCountText = Browser.FindElement(Bys.PopulationsPageBy.PopulationVisitCountlabel).Text.Split(':');
+            String[] populationOnePatientCountText = Browser.FindElement(Bys.PopulationsPageBy.PopulationPatientCountlabel).Text.Split(':');
+            String[] populationOneSiteCountText = Browser.FindElement(Bys.PopulationsPageBy.PopulationHospitalCountlabel).Text.Split(':');
+
+            String populationOneVisitCount = populationOneVisitCountText[1].Trim();
+            String populationOnePatientCount = populationOnePatientCountText[1].Trim();
+            String populationOneSiteCount = populationOneSiteCountText[1].Trim();
+
+            populationPage = homePage.ClickAndWaitBasePage(homePage.PopulationMenuLink);
+
+            String datetimeTwo = DateTime.Now.ToString("yy-MM-dd HH:mm:ss").Replace("-", "").Replace(" ", "").Replace(":", "");
+
+            String TitleTwo = "AutoTitle" + datetimeTwo;
+            String DescriptionTwo = "AutoDesc" + datetimeTwo;
+            String[] FilterConditionTwoSearchText = { "001", "001.0", "001.1" };
+            FilterSearchResultsSelection = "Individual";
+            IsContract = "Yes";
+
+            populationPage.CreateNewPopulation(TitleTwo, DescriptionTwo, AttributeType, Attribute, FilterCoditionOne, FilterConditionTwoSearchText, FilterSearchResultsSelection, IsContract);
+
+            // Validate first population status
+            Assert.That(ElemGet.Grid_CellTextFound(Browser, populationPage.PopulationDetailsTbl, 5, "td", " Processing"));
+
+            // Validate Population is created with title
+            Assert.That(ElemGet.Grid_CellTextFound(Browser, populationPage.PopulationDetailsTbl, 0, "td", " " + TitleOne));
+            Browser.WaitJSAndJQuery();
+
+            Browser.WaitForElement(Bys.PopulationsPageBy.ActionsHomeBtn, TimeSpan.FromSeconds(60), ElementCriteria.IsVisible);
+
+            // Open the created popoulation
+
+            populationPage.ClickAndWait(populationPage.populationDetailsTblFirtRowNameColumn);
+
+            // Retrive the Details of Visits, Population, Sites
+
+            String[] populationTwoVisitCountText = Browser.FindElement(Bys.PopulationsPageBy.PopulationVisitCountlabel).Text.Split(':');
+            String[] populationTwoPatientCountText = Browser.FindElement(Bys.PopulationsPageBy.PopulationPatientCountlabel).Text.Split(':');
+            String[] populationTwoSiteCountText = Browser.FindElement(Bys.PopulationsPageBy.PopulationHospitalCountlabel).Text.Split(':');
+
+            String populationTwoVisitCount = populationTwoVisitCountText[1].Trim();
+            String populationTwoPatientCount = populationTwoPatientCountText[1].Trim();
+            String populationTwoSiteCount = populationTwoSiteCountText[1].Trim();
+
+            //String Title = "Multi pop Auto_Check _one";
+            String Title = TitleOne;
+            String Title2 = TitleTwo;
+            //String Title2 = "Multi pop Report-Auto_ Check two";
 
             // Navigate to Report Menu
             ReportsPage reportsPage = homePage.ClickAndWaitBasePage(homePage.ReportMenuLink);
@@ -61,27 +136,35 @@
             Browser.WaitForElement(Bys.ReportsPageBy.NumberOfPopulationlabel, TimeSpan.FromSeconds(180), ElementCriteria.IsVisible);
             Thread.Sleep(TimeSpan.FromSeconds(5));
 
+            String reportVisitCountOne = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowVisits).Text;
+            String reportPatientCountOne = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowPatient).Text;
+            String reportSiteCountOne = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowSites).Text;
+
+            String reportVisitCountTwo = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowVisits).Text;
+            String reportPatientCountTwo = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowPatient).Text;
+            String reportSiteCountTwo = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowSites).Text;
+
             // Visit , Patients, Sites Count Check
 
             // Visit Count Check
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowVisits).Text.Contains("1,213"))
+            if (! reportVisitCountOne.Contains(populationOneVisitCount))
                 throw new Exception("Visit count doesn't match with the population " + Title + " as per in the Overview tab");
 
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowVisits).Text.Contains("1,319"))
+            if (! reportVisitCountTwo.Contains(populationTwoVisitCount))
                 throw new Exception("Visit count doesn't match with the population " + Title2 + " as per in the Overview tab");
 
             // Patients Count Check
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowPatient).Text.Contains("1,138"))
+            if (! reportPatientCountOne.Contains(populationOnePatientCount))
                 throw new Exception("Patient count doesn't match with the population " + Title + " as per in the Summary Table tab");
 
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowPatient).Text.Contains("1,224"))
+            if (! reportPatientCountTwo.Contains(populationTwoPatientCount))
                 throw new Exception("Patient count doesn't match with the population " + Title2 + " as per in the Summary Table tab");
 
             // Sites Count Check
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowSites).Text.Contains("194"))
+            if (! reportSiteCountOne.Contains(populationOneSiteCount))
                 throw new Exception("Sites count doesn't match with the population " + Title + " as per in the Summary Table tab");
 
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowSites).Text.Contains("221"))
+            if (! reportSiteCountTwo.Contains(populationTwoSiteCount))
                 throw new Exception("Sites count doesn't match with the population " + Title2 + " as per in the Summary Table tab");
 
 
@@ -108,27 +191,35 @@
             Browser.WaitForElement(Bys.ReportsPageBy.NumberOfPopulationlabel, TimeSpan.FromSeconds(180), ElementCriteria.IsVisible);
             Thread.Sleep(TimeSpan.FromSeconds(5));
 
+            reportVisitCountOne = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowVisits).Text;
+            reportPatientCountOne = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowPatient).Text;
+            reportSiteCountOne = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowSites).Text;
+
+            reportVisitCountTwo = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowVisits).Text;
+            reportPatientCountTwo = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowPatient).Text;
+            reportSiteCountTwo = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowSites).Text;
+
             // Visit , Patients, Sites Count Check
 
             // Visit Count Check
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowVisits).Text.Contains("1,213"))
+            if (!reportVisitCountOne.Contains(populationOneVisitCount))
                 throw new Exception("Visit count doesn't match with the population " + Title + " as per in the Overview tab");
 
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowVisits).Text.Contains("1,319"))
+            if (!reportVisitCountTwo.Contains(populationTwoVisitCount))
                 throw new Exception("Visit count doesn't match with the population " + Title2 + " as per in the Overview tab");
 
             // Patients Count Check
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowPatient).Text.Contains("1,138"))
+            if (!reportPatientCountOne.Contains(populationOnePatientCount))
                 throw new Exception("Patient count doesn't match with the population " + Title + " as per in the Summary Table tab");
 
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowPatient).Text.Contains("1,224"))
+            if (!reportPatientCountTwo.Contains(populationTwoPatientCount))
                 throw new Exception("Patient count doesn't match with the population " + Title2 + " as per in the Summary Table tab");
 
             // Sites Count Check
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowSites).Text.Contains("194"))
+            if (!reportSiteCountOne.Contains(populationOneSiteCount))
                 throw new Exception("Sites count doesn't match with the population " + Title + " as per in the Summary Table tab");
 
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowSites).Text.Contains("221"))
+            if (!reportSiteCountTwo.Contains(populationTwoSiteCount))
                 throw new Exception("Sites count doesn't match with the population " + Title2 + " as per in the Summary Table tab");
 
 
@@ -150,27 +241,35 @@
             Browser.WaitForElement(Bys.ReportsPageBy.NumberOfPopulationlabel, TimeSpan.FromSeconds(180), ElementCriteria.IsVisible);
             Thread.Sleep(TimeSpan.FromSeconds(5));
 
+            reportVisitCountOne = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowVisits).Text;
+            reportPatientCountOne = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowPatient).Text;
+            reportSiteCountOne = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowSites).Text;
+
+            reportVisitCountTwo = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowVisits).Text;
+            reportPatientCountTwo = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowPatient).Text;
+            reportSiteCountTwo = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowSites).Text;
+
             // Visit , Patients, Sites Count Check
 
             // Visit Count Check
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowVisits).Text.Contains("1,213"))
+            if (!reportVisitCountOne.Contains(populationOneVisitCount))
                 throw new Exception("Visit count doesn't match with the population " + Title + " as per in the Overview tab");
 
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowVisits).Text.Contains("1,319"))
+            if (!reportVisitCountTwo.Contains(populationTwoVisitCount))
                 throw new Exception("Visit count doesn't match with the population " + Title2 + " as per in the Overview tab");
 
             // Patients Count Check
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowPatient).Text.Contains("1,138"))
+            if (!reportPatientCountOne.Contains(populationOnePatientCount))
                 throw new Exception("Patient count doesn't match with the population " + Title + " as per in the Summary Table tab");
 
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowPatient).Text.Contains("1,224"))
+            if (!reportPatientCountTwo.Contains(populationTwoPatientCount))
                 throw new Exception("Patient count doesn't match with the population " + Title2 + " as per in the Summary Table tab");
 
             // Sites Count Check
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowSites).Text.Contains("194"))
+            if (!reportSiteCountOne.Contains(populationOneSiteCount))
                 throw new Exception("Sites count doesn't match with the population " + Title + " as per in the Summary Table tab");
 
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowSites).Text.Contains("221"))
+            if (!reportSiteCountTwo.Contains(populationTwoSiteCount))
                 throw new Exception("Sites count doesn't match with the population " + Title2 + " as per in the Summary Table tab");
 
             reportsPage.ClickAndWait(reportsPage.SiteCharacteristicsTabBtn);
@@ -191,27 +290,35 @@
             Browser.WaitForElement(Bys.ReportsPageBy.NumberOfPopulationlabel, TimeSpan.FromSeconds(180), ElementCriteria.IsVisible);
             Thread.Sleep(TimeSpan.FromSeconds(5));
 
+            reportVisitCountOne = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowVisits).Text;
+            reportPatientCountOne = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowPatient).Text;
+            reportSiteCountOne = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowSites).Text;
+
+            reportVisitCountTwo = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowVisits).Text;
+            reportPatientCountTwo = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowPatient).Text;
+            reportSiteCountTwo = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowSites).Text;
+
             // Visit , Patients, Sites Count Check
 
             // Visit Count Check
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowVisits).Text.Contains("1,213"))
+            if (!reportVisitCountOne.Contains(populationOneVisitCount))
                 throw new Exception("Visit count doesn't match with the population " + Title + " as per in the Overview tab");
 
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowVisits).Text.Contains("1,319"))
+            if (!reportVisitCountTwo.Contains(populationTwoVisitCount))
                 throw new Exception("Visit count doesn't match with the population " + Title2 + " as per in the Overview tab");
 
             // Patients Count Check
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowPatient).Text.Contains("1,138"))
+            if (!reportPatientCountOne.Contains(populationOnePatientCount))
                 throw new Exception("Patient count doesn't match with the population " + Title + " as per in the Summary Table tab");
 
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowPatient).Text.Contains("1,224"))
+            if (!reportPatientCountTwo.Contains(populationTwoPatientCount))
                 throw new Exception("Patient count doesn't match with the population " + Title2 + " as per in the Summary Table tab");
 
             // Sites Count Check
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowSites).Text.Contains("194"))
+            if (!reportSiteCountOne.Contains(populationOneSiteCount))
                 throw new Exception("Sites count doesn't match with the population " + Title + " as per in the Summary Table tab");
 
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowSites).Text.Contains("221"))
+            if (!reportSiteCountTwo.Contains(populationTwoSiteCount))
                 throw new Exception("Sites count doesn't match with the population " + Title2 + " as per in the Summary Table tab");
 
 
@@ -233,27 +340,35 @@
             Browser.WaitForElement(Bys.ReportsPageBy.NumberOfPopulationlabel, TimeSpan.FromSeconds(180), ElementCriteria.IsVisible);
             Thread.Sleep(TimeSpan.FromSeconds(5));
 
+            reportVisitCountOne = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowVisits).Text;
+            reportPatientCountOne = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowPatient).Text;
+            reportSiteCountOne = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowSites).Text;
+
+            reportVisitCountTwo = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowVisits).Text;
+            reportPatientCountTwo = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowPatient).Text;
+            reportSiteCountTwo = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowSites).Text;
+
             // Visit , Patients, Sites Count Check
 
             // Visit Count Check
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowVisits).Text.Contains("1,213"))
+            if (!reportVisitCountOne.Contains(populationOneVisitCount))
                 throw new Exception("Visit count doesn't match with the population " + Title + " as per in the Overview tab");
 
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowVisits).Text.Contains("1,319"))
+            if (!reportVisitCountTwo.Contains(populationTwoVisitCount))
                 throw new Exception("Visit count doesn't match with the population " + Title2 + " as per in the Overview tab");
 
             // Patients Count Check
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowPatient).Text.Contains("1,138"))
+            if (!reportPatientCountOne.Contains(populationOnePatientCount))
                 throw new Exception("Patient count doesn't match with the population " + Title + " as per in the Summary Table tab");
 
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowPatient).Text.Contains("1,224"))
+            if (!reportPatientCountTwo.Contains(populationTwoPatientCount))
                 throw new Exception("Patient count doesn't match with the population " + Title2 + " as per in the Summary Table tab");
 
             // Sites Count Check
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowSites).Text.Contains("194"))
+            if (!reportSiteCountOne.Contains(populationOneSiteCount))
                 throw new Exception("Sites count doesn't match with the population " + Title + " as per in the Summary Table tab");
 
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowSites).Text.Contains("221"))
+            if (!reportSiteCountTwo.Contains(populationTwoSiteCount))
                 throw new Exception("Sites count doesn't match with the population " + Title2 + " as per in the Summary Table tab");
 
             reportsPage.ClickAndWait(reportsPage.OutcomeTabBtn);
@@ -274,27 +389,35 @@
             Browser.WaitForElement(Bys.ReportsPageBy.NumberOfPopulationlabel, TimeSpan.FromSeconds(180), ElementCriteria.IsVisible);
             Thread.Sleep(TimeSpan.FromSeconds(5));
 
+            reportVisitCountOne = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowVisits).Text;
+            reportPatientCountOne = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowPatient).Text;
+            reportSiteCountOne = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowSites).Text;
+
+            reportVisitCountTwo = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowVisits).Text;
+            reportPatientCountTwo = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowPatient).Text;
+            reportSiteCountTwo = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowSites).Text;
+
             // Visit , Patients, Sites Count Check
 
             // Visit Count Check
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowVisits).Text.Contains("1,213"))
+            if (!reportVisitCountOne.Contains(populationOneVisitCount))
                 throw new Exception("Visit count doesn't match with the population " + Title + " as per in the Overview tab");
 
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowVisits).Text.Contains("1,319"))
+            if (!reportVisitCountTwo.Contains(populationTwoVisitCount))
                 throw new Exception("Visit count doesn't match with the population " + Title2 + " as per in the Overview tab");
 
             // Patients Count Check
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowPatient).Text.Contains("1,138"))
+            if (!reportPatientCountOne.Contains(populationOnePatientCount))
                 throw new Exception("Patient count doesn't match with the population " + Title + " as per in the Summary Table tab");
 
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowPatient).Text.Contains("1,224"))
+            if (!reportPatientCountTwo.Contains(populationTwoPatientCount))
                 throw new Exception("Patient count doesn't match with the population " + Title2 + " as per in the Summary Table tab");
 
             // Sites Count Check
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowSites).Text.Contains("194"))
+            if (!reportSiteCountOne.Contains(populationOneSiteCount))
                 throw new Exception("Sites count doesn't match with the population " + Title + " as per in the Summary Table tab");
 
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowSites).Text.Contains("221"))
+            if (!reportSiteCountTwo.Contains(populationTwoSiteCount))
                 throw new Exception("Sites count doesn't match with the population " + Title2 + " as per in the Summary Table tab");
 
             reportsPage.ClickAndWait(reportsPage.PanelTabBtn);
@@ -315,27 +438,35 @@
             Browser.WaitForElement(Bys.ReportsPageBy.NumberOfPopulationlabel, TimeSpan.FromSeconds(180), ElementCriteria.IsVisible);
             Thread.Sleep(TimeSpan.FromSeconds(5));
 
+            reportVisitCountOne = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowVisits).Text;
+            reportPatientCountOne = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowPatient).Text;
+            reportSiteCountOne = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowSites).Text;
+
+            reportVisitCountTwo = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowVisits).Text;
+            reportPatientCountTwo = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowPatient).Text;
+            reportSiteCountTwo = Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowSites).Text;
+
             // Visit , Patients, Sites Count Check
 
             // Visit Count Check
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowVisits).Text.Contains("1,213"))
+            if (!reportVisitCountOne.Contains(populationOneVisitCount))
                 throw new Exception("Visit count doesn't match with the population " + Title + " as per in the Overview tab");
 
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowVisits).Text.Contains("1,319"))
+            if (!reportVisitCountTwo.Contains(populationTwoVisitCount))
                 throw new Exception("Visit count doesn't match with the population " + Title2 + " as per in the Overview tab");
 
             // Patients Count Check
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowPatient).Text.Contains("1,138"))
+            if (!reportPatientCountOne.Contains(populationOnePatientCount))
                 throw new Exception("Patient count doesn't match with the population " + Title + " as per in the Summary Table tab");
 
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowPatient).Text.Contains("1,224"))
+            if (!reportPatientCountTwo.Contains(populationTwoPatientCount))
                 throw new Exception("Patient count doesn't match with the population " + Title2 + " as per in the Summary Table tab");
 
             // Sites Count Check
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableFirstRowSites).Text.Contains("194"))
+            if (!reportSiteCountOne.Contains(populationOneSiteCount))
                 throw new Exception("Sites count doesn't match with the population " + Title + " as per in the Summary Table tab");
 
-            if (!Browser.FindElement(Bys.ReportsPageBy.MultiPopulationTableSecondRowSites).Text.Contains("221"))
+            if (!reportSiteCountTwo.Contains(populationTwoSiteCount))
                 throw new Exception("Sites count doesn't match with the population " + Title2 + " as per in the Summary Table tab");
 
             reportsPage.ClickAndWait(reportsPage.AppendicesTabBtn);
@@ -401,5 +532,4 @@
 
     }
 }
-
 
